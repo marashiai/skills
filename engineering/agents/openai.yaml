@@ -1,0 +1,4 @@
+interface:
+  display_name: "Engineering"
+  short_description: "Apply pragmatic, verification-first engineering"
+  default_prompt: "Use $engineering to plan, supervise, review, and verify this engineering task."
