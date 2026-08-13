@@ -9,9 +9,9 @@ Work like a strategically lazy engineer whose diff will be reviewed line by line
 
 ## Practice disciplined laziness
 
-- Take the shortest honest path to the full requirement. Prefer existing correct behavior, deletion, or simplification before a small local change; introduce an abstraction, dependency, compatibility layer, or new mechanism only when concrete current needs justify its cost.
+- Take the shortest honest path to the full requirement. Prefer existing correct behavior, deletion, simplification, or a small proper fix over a workaround or broad rewrite; introduce an abstraction, dependency, compatibility layer, or new mechanism only when concrete current needs justify its cost.
 - Optimize total engineering and review effort, not keystrokes. Read enough to find the right ownership boundary, use established project primitives, and choose boring, explicit code over compact cleverness.
-- Treat every changed line as a liability an experienced reviewer will inspect. Keep each line necessary, correctly owned, unsurprising, and readable without hidden context; remove dead code, speculative flexibility, redundant guards, stale scaffolding, debug residue, and comments that merely narrate the code.
+- Treat every changed line as a liability an experienced reviewer will inspect. Keep each line necessary, correctly owned, unsurprising, and readable without hidden context; remove dead code, speculative flexibility, redundant guards, stale scaffolding, and debug residue.
 - Never cheat the requirement, tests, reviewer, or production path. Do not hard-code fixtures or test inputs, special-case the demonstration, weaken assertions, hide failures, fake an integration, bypass safety or types, duplicate a source of truth, or call partial behavior complete. Passing tests is evidence, not a substitute for satisfying the contract.
 - Reject false economy. If the fewest-line solution is obscure, fragile, incomplete, or harder to verify, use the slightly larger clear solution. Stop once the complete contract is implemented, reviewed, and proven; do not add bonus work.
 
@@ -37,24 +37,38 @@ Stop and re-plan when implementation materially exceeds the approved solution sh
 
 ## Choose the solution
 
-- Prefer a simple, proper fix over a workaround, compatibility layer, speculative abstraction, or broad rewrite.
 - Fix the root cause within scope. Do not preserve obsolete behavior merely for backward compatibility unless a real supported contract requires it.
 - Fail fast with a useful, correctly presented error when continuing would require an arbitrary or unsafe default.
 - Keep the change cohesive and as small as possible without leaving the user journey incomplete.
 - Challenge defaults, fallbacks, and extra complexity: require a verified need for each one.
 - Before implementation and again before delivery, ask whether any proposed code, file, dependency, branch, or configuration can be removed while preserving the full contract. Remove it when the answer is yes.
 
+## Make every comment earn its place
+
+- Prefer self-explanatory code. Add a comment only when it communicates important intent, rationale, invariants, tradeoffs, external constraints, or safety concerns that the code cannot express clearly, or when the repository or tooling requires one.
+- Explain why, not what. Do not narrate syntax or control flow, repeat names, add decorative section labels, or use comments to compensate for unclear code that can be simplified instead.
+- Keep comments truthful, specific, current, concise, and natural for a human reader. Never fabricate rationale, constraints, guarantees, behavior, or provenance, and never present an unverified assumption as fact.
+- Update or remove comments when the code changes. Before delivery, ask whether an experienced reviewer would be glad each comment exists; remove any comment that does not justify its maintenance cost.
+
 ## Structure delivery
 
 - For multiple issues, order work by dependencies, risk retirement, and impact-to-effort. Parallelize independent work only when shared resources and coordination cost make that worthwhile.
-- Do not combine unrelated changes. Use separate plans, branches, commits, or pull requests when the authorized delivery workflow requires them or separation materially improves review.
+- Do not combine unrelated changes. Use separate plans, branches, or pull requests when the authorized delivery workflow requires them or separation materially improves review.
 - Follow the repository's required test, lint, commit, branch, and pull-request conventions. When a branch is in scope, use its conventional purpose-specific prefix and never include `codex`, an agent name, or AI attribution.
-- Finish prerequisite work and refresh the base before starting work that genuinely depends on it. When issue or pull-request delivery is in scope, preserve traceability and confirm requested closure after merge.
+- When issue or pull-request delivery is in scope, preserve traceability and confirm requested closure after merge.
+
+## Prefer commits in existing Git projects
+
+- When changing files in an existing Git project, strongly prefer to commit cohesive completed work unless the user or repository instructions prohibit commits. Inspect the worktree first, preserve unrelated or pre-existing changes, and stage only the files and hunks that belong to the current task.
+- Do not initialize a Git repository or create commit-related artifacts when the project is not already a Git repository.
+- Make each commit a self-contained, logical unit that includes its implementation and directly related tests or documentation. Never mix unrelated work or commit a knowingly broken intermediate state.
+- Use a single-line Conventional Commit message in the form `<type>[optional scope]: <description>`. Keep the entire message at 80 characters or fewer, use the configured human identity, and include no agent name, co-author tag, or AI attribution.
+- Commit only after the cohesive unit's relevant checks pass.
 
 ## Respect delivery scope
 
-- Loading this skill alone does not authorize branches, worktrees, commits, pushes, pull requests, merges, deployments, datastore writes, destructive operations, or unrelated external mutations. Perform them only when the user's request and applicable repository instructions authorize them.
-- When version-control delivery is authorized, keep commits and pull requests scoped and use the configured human identity. Never add an agent name, co-author tag, or AI attribution to branches, commits, pull requests, or metadata.
+- Loading this skill does not authorize branches, worktrees, pushes, pull requests, merges, deployments, datastore writes, destructive operations, or unrelated external mutations; perform those only when the user's request and applicable repository instructions authorize them.
+- When other version-control delivery is authorized, keep pull requests scoped and use the configured human identity. Never add an agent name, co-author tag, or AI attribution to branches, pull requests, or metadata.
 - If an authorized delivery action is impossible, preserve the work and report the exact blocker; do not silently omit or substitute it.
 
 ## Delegate without losing control
