@@ -1,4 +1,4 @@
 interface:
   display_name: "Engineering"
-  short_description: "Ship the smallest honest, senior-readable solution"
-  default_prompt: "Use $engineering to produce the smallest honest, requirement-complete change an experienced senior engineer would approve line by line."
+  short_description: "Ship production-ready, runtime-verified changes"
+  default_prompt: "Use $engineering to implement the smallest honest solution, then prove the release artifact in the closest safe production-equivalent runtime."

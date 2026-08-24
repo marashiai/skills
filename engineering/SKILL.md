@@ -1,11 +1,11 @@
 ---
 name: engineering
-description: Apply disciplined, pragmatic engineering that minimizes code and complexity while fully meeting requirements, rejects shortcuts and test-gaming, and produces readable, verification-backed changes for line-by-line senior review. Use when an agent must implement or supervise code changes, split genuinely dependent work into issues and pull requests, coordinate child agents or observers, interview a non-technical product owner, review a proposed solution for simplicity and correctness, or verify a user-facing change before merging.
+description: Apply disciplined, pragmatic engineering that minimizes code and complexity while fully meeting requirements, rejects shortcuts and test-gaming, and produces readable, production-ready changes backed by production-equivalent verification. Use when an agent must implement or supervise code changes, verify a user-facing change in the real runtime, assess deployment readiness and operability, split genuinely dependent work into issues and pull requests, coordinate child agents or observers, interview a non-technical product owner, or review a proposed solution for simplicity and correctness.
 ---
 
 # Engineering
 
-Work like a strategically lazy engineer whose diff will be reviewed line by line by an engineer with 11+ years of experience. Treat the full product contract, correctness, safety, readability, and credible evidence as hard constraints; within them, minimize code, concepts, dependencies, effort, and future maintenance.
+Work like a strategically lazy engineer whose diff will be reviewed line by line by an engineer with 11+ years of experience and who remains accountable for deploying and operating the service. Treat the full product contract, correctness, safety, readability, production readiness, and credible evidence as hard constraints; within them, minimize code, concepts, dependencies, effort, and future maintenance.
 
 ## Practice disciplined laziness
 
@@ -40,6 +40,7 @@ Stop and re-plan when implementation materially exceeds the approved solution sh
 - Fix the root cause within scope. Do not preserve obsolete behavior merely for backward compatibility unless a real supported contract requires it.
 - Fail fast with a useful, correctly presented error when continuing would require an arbitrary or unsafe default.
 - Keep the change cohesive and as small as possible without leaving the user journey incomplete.
+- Treat control flow based on user-facing, localized, translated, or rendered text as a code smell and avoid it by default. Use stable identifiers, enums, modes, explicit actions, state, or structural fields instead. Compare text only when the text itself is the product input or contract, such as search, parsing, or content validation.
 - Challenge defaults, fallbacks, and extra complexity: require a verified need for each one.
 - Before implementation and again before delivery, ask whether any proposed code, file, dependency, branch, or configuration can be removed while preserving the full contract. Remove it when the answer is yes.
 
@@ -68,6 +69,7 @@ Stop and re-plan when implementation materially exceeds the approved solution sh
 ## Respect delivery scope
 
 - Loading this skill does not authorize branches, worktrees, pushes, pull requests, merges, deployments, datastore writes, destructive operations, or unrelated external mutations; perform those only when the user's request and applicable repository instructions authorize them.
+- When investigation or review reveals a defect or vulnerability unrelated to the current task, confirm only enough evidence to describe it accurately, then stop. Do not fix it, add its tests, refactor around it, or expand the current branch or pull request unless the user explicitly asks. In a GitHub repository with authenticated issue access, create a separate issue containing the impact, reproduction evidence, and relevant locations; if issue creation is unavailable or unsafe, report the exact blocker and provide the issue text for the user to file. Keep sensitive exploit details out of a public issue when disclosure would create avoidable risk.
 - When other version-control delivery is authorized, keep pull requests scoped and use the configured human identity. Never add an agent name, co-author tag, or AI attribution to branches, pull requests, or metadata.
 - If an authorized delivery action is impossible, preserve the work and report the exact blocker; do not silently omit or substitute it.
 
@@ -96,16 +98,19 @@ Stop and re-plan when implementation materially exceeds the approved solution sh
 
 ## Verify before delivery
 
-Use the cheapest reliable evidence capable of exposing a defect, and broaden verification when repository rules, risk, or failures require it.
+Use the closest safely available production-equivalent evidence capable of exposing a defect. Start with scoped checks for fast feedback, but do not let test cost or convenience replace verification through the real runtime boundaries the change affects.
 
 1. Capture the expected failing test before implementation when test-driven development applies.
    When removing a feature, remove its direct tests and do not add exclusion tests that assert the former UI, text, or code is absent. Test the replacement behavior when one exists; when there is no replacement, verify the removal through scoped source inspection and the real user-facing surface.
 2. Run the relevant automated tests and lint checks in the repository-required order.
-3. Verify every acceptance criterion against actual behavior through the real production path when practical, not only code shape, a tailored fixture, or an agent's claim. Never weaken, skip, narrow, or rewrite a valid test merely to obtain a green check; change it only when the supported contract changed, and preserve coverage of the replacement behavior.
-4. For changes affecting rendered UI or interaction, visually verify the changed journey and relevant recovery path in the real browser/runtime when repository rules or regression risk warrant it.
-5. Review the final diff for correctness, security, regression risk, unnecessary complexity, unverified assumptions, and mistakenly folded prerequisites. Add an independent review for nontrivial or high-risk changes; repeated architectural findings mean the plan is wrong, not that it needs another local patch.
-6. Apply valid findings, then rerun the affected checks and visual verification.
-7. Wait for required CI and inspect pull-request metadata only when that delivery workflow is in scope.
+3. Before declaring work complete or release-ready, build the release artifact through the real release path and exercise the changed behavior in the closest safe, authorized production-equivalent environment available. When the repository provides a Docker/Compose stack, packaged build, local service topology, staging environment, or canary workflow, rebuild or redeploy the affected components and verify the real configuration, authentication, persistence, networking, and process boundaries involved. Unit tests, component tests, static servers, mocks, and tailored fixtures are supplemental evidence; they do not replace an available end-to-end runtime.
+4. Verify every acceptance criterion against actual behavior through that runtime, not only code shape, a tailored fixture, or an agent's claim. Never weaken, skip, narrow, or rewrite a valid test merely to obtain a green check; change it only when the supported contract changed, and preserve coverage of the replacement behavior.
+5. For every change affecting rendered UI or interaction, visually verify the changed journey and relevant recovery path in a real browser against the rebuilt application runtime. A mock page, screenshot harness, or static browser suite may support this check but cannot substitute for it when the real application can be run safely.
+6. Treat operability as part of correctness. In the production-equivalent environment, verify applicable migrations, startup and restart behavior, dependency connectivity, health checks, logs and metrics needed to diagnose failure, backward compatibility during rollout, and the documented rollback or recovery path. A green functional test suite alone is not release evidence.
+7. If the closest production-equivalent path or release workflow is unavailable, unsafe, or outside the user's authorized scope, do not silently substitute weaker evidence or describe the work as fully verified or release-ready. Report the exact blocker, the verification that remains missing, and the evidence that was completed.
+8. Review the final diff for correctness, security, regression risk, unnecessary complexity, unverified assumptions, and mistakenly folded prerequisites. Add an independent review for nontrivial or high-risk changes; repeated architectural findings mean the plan is wrong, not that it needs another local patch.
+9. Apply valid findings, then rerun the affected checks and production-equivalent visual verification.
+10. Wait for required CI and inspect pull-request metadata only when that delivery workflow is in scope.
 
 For authenticated verification, create or reuse a dedicated least-privilege test account; never ask for or use the product owner's personal or administrator credentials. Prefer the product's supported signup, provisioning, or seed flow. Do not modify a datastore unless the owner explicitly authorizes it and the target is verified as a non-production development environment. When no provisioning surface exists and the owner explicitly authorizes local datastore provisioning, derive the canonical account schema and credential hashing from current code and migrations, prefer an existing application command when available, and otherwise make the smallest transactional insert into the resolved local database. Never bypass authentication or write directly to production. Keep test credentials in an approved local secret location excluded from version control; never echo them into chat, logs, plans, commits, or pull requests.
 

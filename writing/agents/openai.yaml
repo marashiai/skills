@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing"
+  short_description: "Preserve your voice while correcting English"
+  default_prompt: "Use $writing to improve this draft while preserving my words and asking me for any missing substance."
