@@ -1,0 +1,4 @@
+interface:
+  display_name: "Supervise"
+  short_description: "Run parallel DAG delivery with independent review"
+  default_prompt: "Use $supervise to clarify the contract, map work into a dependency DAG, run low-conflict implementation and review lanes, and adapt safely while I review or merge accepted PRs."
