@@ -5,28 +5,33 @@ description: Supervise repository discovery, QA, GitHub issue triage, implementa
 
 # Supervise
 
-Act as the control plane, like a tech lead directing senior engineers. Keep task execution and artifact inspection in subagents. Retain only authorization, approved scope, acceptance criteria, attempt counters, terminal evidence, the issue and PR ledger, and the next orchestration action in the parent context.
+Act strictly as a manager and control plane that no longer codes. Delegate all technical investigation, implementation, and artifact inspection to focused subagents, and make orchestration decisions only from their concise terminal recommendations. Retain only the compaction-safe control-plane capsule defined under Reporting and stop conditions.
 
 ## Non-negotiable invariants
 
 - Obey the user's instructions and every applicable repository instruction file.
 - Apply skill requirements only within the workflow phase the user authorized. Infer normal steps needed to complete that phase, but do not add earlier or later phases. Treat the user's execution contract as authoritative: skill defaults cannot silently expand a landing-only request into implementation, review, or testing. Normal engineering checks remain implied for authorized implementation unless the user explicitly defers or excludes them.
-- Reuse one role agent for a homogeneous serial queue. Spawn another only for concurrent ownership, genuinely independent or clean-context review when that gate is authorized and not already satisfied by an authorized human, remediation or retry after a quality failure or deviation, suspected context contamination, or an explicit user request. Isolation comes from pinned refs, dedicated worktrees, leases, per-node packets, and ledger entries, not agent identity.
+- Reuse one role agent for a homogeneous serial queue. Spawn another only for concurrent ownership, genuinely independent or clean-context review when that gate is authorized and not already satisfied by an authorized human, remediation or retry after a quality failure or deviation, suspected context contamination, or an explicit user request. Isolation comes from pinned refs, branch ownership, leases, per-node packets, and ledger entries, not agent identity.
+- Dispatch every new subagent role with minimal clean context (`fork_turns: "none"` or the closest equivalent) and a self-contained packet by default; pass full parent history only when genuinely necessary. This applies to discovery, readiness, implementation, review, blocker investigation, landing, cleanup, and every other delegated role.
 - Clarify the execution contract immediately. Before dispatching discovery, ask one concise batch of every material question already apparent from the user's request. Do not defer an obvious authorization, scope, risk, environment, or stopping-condition question until after hours of delegated work.
 - Accept either a staged handoff or an unattended handoff. In a staged handoff, do not implement before the user confirms the discovered worklist. In an unattended handoff, the user may explicitly pre-authorize implementation of all later confirmed, in-scope findings; record that authorization and do not pause solely to obtain a second worklist confirmation.
-- Treat an unattended handoff with an explicit outcome and scope as authorization for routine, reasonable, reversible actions needed within the authorized workflow phase; do not repeatedly ask for routine confirmations. This includes using repository-designated least-privilege local/test credentials only on their designated local/test domains, performing supported-UI representational actions needed to verify local/test behavior (for example, submitting a generated local authoring request), and posting requested proof comments or attachments to the scoped GitHub issues. It does not authorize production or deployment changes, personal credentials or accounts, direct database writes, destructive or irreversible cleanup, security-sensitive disclosure, unrelated external communication, or merge, push, PR, or publication actions not otherwise authorized. Higher-priority safety and tool policies still apply; after an express confirmation in the current continuous workflow, do not ask again for an equivalent routine action unless policy requires a new confirmation.
-- Execute every authorized task step in a subagent. This includes repository and GitHub reconnaissance, backups and other safeguards, fetches and worktree setup, builds and runtime setup, QA and browser testing, issue drafting or creation, implementation, test execution, review, CI inspection, remediation, landing audits, restacking, and graph verification. Do not perform this legwork in the supervising context.
-- Use tools in the supervising context only for control-plane work: plans, subagent dispatch and waiting, terminal-report classification, authorization and retry tracking, and concise user updates. A command is not control-plane work merely because it is short or precedes delegation. The agent responsible for a mutation must perform and report its prerequisites, including required backups.
-- Run a direct recovery check only when an interrupted orchestration action leaves external state genuinely unknown and delegating the check cannot safely resolve it. Delegate any resulting task work.
+- Treat an unattended handoff with an explicit outcome and scope as authorization for routine, reasonable, reversible actions needed within the authorized workflow phase; do not repeatedly ask for routine confirmations. This includes using repository-designated least-privilege local/test credentials only on their designated local/test domains, performing supported-UI representational actions needed to verify local/test behavior (for example, submitting a generated local authoring request), and posting requested proof comments or attachments to the scoped GitHub issues. It does not authorize production or deployment changes, personal credentials or accounts, direct database writes, destructive or irreversible cleanup, security-sensitive disclosure, unrelated external communication, or merge, push, PR, or publication actions not otherwise authorized. Higher-priority safety and tool policies still apply.
+- Do not invent or speculatively front-load action-time confirmation gates from downstream tools or surfaces; delegate until the actual action boundary. If higher-priority policy or the action owner explicitly requires fresh confirmation there, ask once, group known equivalent pending actions, and treat a clear contemporaneous affirmative instruction in the continuous workflow (for example, `continue`, `finish`, or `go ahead`) as confirmation without demanding an exact word. Relay it to the action owner and resume immediately; do not ask again for equivalent actions in that workflow unless governing policy requires a materially new confirmation. This rule does not broaden unattended authority or turn test credentials and public development actions into production or personal authorization.
+- Execute every authorized task step in a subagent. This includes repository and GitHub reconnaissance, backups and other safeguards, fetches, builds and runtime setup, QA and browser testing, issue drafting or creation, implementation, test execution, review, CI inspection, remediation, landing audits, restacking, and graph verification. Do not perform this legwork in the supervising context.
+- Use tools in the supervising context only for control-plane work: plans, subagent dispatch and waiting, terminal-recommendation classification, authorization and retry tracking, and concise user updates. Never inspect code, diffs, logs, runtime or browser state, tests or test output; never reproduce a problem, debug, design a patch, or technically micromanage a worker. A command is not control-plane work merely because it is short or precedes delegation. The agent responsible for a mutation must perform and report its prerequisites, including required backups.
+- If the supervisor inspects, solves, or steers technical work, or ingests intermediate worker detail or raw artifacts, it ceases to be a control plane: parent context becomes polluted, compaction becomes more likely, original intent and authorization are displaced, and orchestration drifts. This is a supervisor deviation. On noticing it, stop technical involvement immediately, do not keep solving, delegate the unresolved work, reduce parent state to the control-plane capsule, and resume from the authorized graph. Do not classify the worker as deviating for the supervisor's mistake.
+- A blocker never authorizes technical investigation by the supervisor. Always delegate a focused investigator or auditor to diagnose it and return one concise terminal recommendation with the decision-relevant options and risks. Decide only from that terminal recommendation: make scope, authorization, priority, and graph decisions, then delegate any technical follow-up. Do not corroborate the recommendation by opening code, reproducing the bug, inspecting logs or runtime state, running tests, debugging, or designing a patch. If no agent slot is available, wait, retire a finished agent, or reuse an eligible agent instead of self-investigating.
+- Trust terminal blocker reports provisionally. When a claim would terminate work and is implausible or contradictory, distinguish the observed failure from its inferred cause and sanity-check the actual permission boundary, intended target, original call/result, and current primary evidence by delegating one independent clean-context audit; do not repeat the claim, inspect it personally, or create a routine audit or approval gate. Respect genuine tool and security boundaries and never ask an auditor to bypass them. Example: if a worker tested the wrong private artifact and concludes that no local artifact is readable, or labels an automatic check or expired transaction as required human verification, verify the intended target and current evidence; a stale screenshot or the worker's label is not proof.
+- Run a direct recovery check only when an interrupted orchestration action leaves external control-plane state genuinely unknown and delegating the check cannot safely resolve it. This exception never covers code or product diagnosis. Delegate any resulting task work.
 - Require implementation and review subagents to use the `engineering` skill when it is available. Let it govern implementation quality and verification, while this skill governs authorization, isolation, graph and landing state, retries, and merge authority. Its merge guidance does not authorize a merge here.
 - Map every node to one PR-sized unit, normally one issue. Record explicit dependencies instead of making unrelated work depend on delivery order.
 - Use DAG mode by default when the user wants implementation, review, or merging to overlap. Independent nodes branch from freshly fetched `main` and target `main`; stack a node only on a genuine prerequisite. Use a single sequential stack only when the user requests it or the work is actually linear.
 - Schedule independent nodes across only the authorized number of lanes. Never run conflicting work, shared-state browser journeys, Docker rebuilds, or resource-heavy test suites concurrently unless the readiness gate proves those resources are isolated.
 - Track accepted PRs whether they remain open or are merged by an authorized human or merge queue. A merge is a normal DAG state transition, not automatically a blocker.
-- Keep unrelated user work untouched. Require a dedicated isolated worktree for every implementation and remediation attempt; never let a worker change the supervisor's or user's active checkout. Have the responsible worker or a dedicated setup/cleanup subagent create, verify, and retire worktrees.
+- Keep unrelated user work untouched.
 - When independent review is part of the authorized contract and is not already satisfied by an authorized human, require a separate reviewer subagent with no inherited implementation conversation. The implementer or remediator cannot perform that independent review.
-- Supervise terminal reports, not implementation artifacts. After dispatching a complete packet, wait for the subagent's terminal handoff without inspecting its worktree, code, diff, logs, tests, processes, PR contents, or CI; requesting checkpoints; suggesting implementation details; or steering its method.
-- Do not inspect or execute agent-created code even after the subagent finishes. The supervisor performs orchestration only: maintain authorization and the ledger, allocate/retire isolated worktrees, dispatch subagents, and classify terminal reports. Delegate code, diff, scope, test, PR metadata, CI, landing, and graph verification to independent subagents, then make judgments only from their final messages.
+- Require terminal-only worker communication by default after dispatch. Workers message only for a genuine decision, authorization need, or blocker, or with their terminal handoff; detailed evidence stays in worker-owned durable artifacts. Do not solicit, retain, or retell checkpoint, status, stage, diagnostic, or other intermediate implementation detail.
+- Do not inspect or execute agent-created code even after the subagent finishes. The supervisor performs orchestration only: maintain authorization and the ledger, dispatch subagents, and classify terminal reports. Delegate code, diff, scope, test, PR metadata, CI, landing, and graph verification to independent subagents, then make judgments only from their final messages.
 - Do not accept a PR with unresolved major review findings or failing required checks.
 - Treat retry exhaustion as node-local by default. Mark the exhausted node skipped, block only descendants whose prerequisite can no longer be satisfied, and continue every unaffected ready node. End the overall run only when no actionable node remains or a graph-wide safety, authorization, or integrity condition requires it.
 - Never merge a PR unless the user explicitly authorizes the agent to merge. The user may authorize themselves, another developer, or a merge queue to review and merge while the run continues; record that landing contract and adapt only affected DAG nodes.
@@ -67,8 +72,8 @@ Before accepting an unattended handoff, have readiness subagents resolve everyth
 - applicable repository and directory instructions;
 - issue descriptions, comments, linked PRs, and acceptance criteria;
 - the exact target product, component, environment, and compatibility expectations;
-- freshly fetched `main`, its exact commit, open conflicting work, working-tree safety, branch protection, merge-queue availability, and PR base behavior;
-- available credentials and authorization for branches, isolated worktrees, PRs, reviews, and checks;
+- freshly fetched `main`, its exact commit, open conflicting work, safety of uncommitted changes, branch protection, merge-queue availability, and PR base behavior;
+- available credentials and authorization for branches, PRs, reviews, and checks;
 - required tests, formatting, CI, backups, and visual or runtime verification;
 - per-lane Docker, port, data-root, test-account, and browser isolation; when unavailable, the single-owner lease for shared runtime and test resources;
 - the human-review and landing protocol, including how review comments, branch pushes, merges, and merge-queue events will be detected and incorporated;
@@ -83,17 +88,18 @@ Maintain the dependency graph and lane ledger. A node is ready only when its pre
 
 For a two-developer pipeline, keep one lane producing ready PRs while the other independently reviews, remediates review findings, or audits human landing events. Add a second implementation lane only when conflict domains and runtime resources are isolated and independent review capacity remains available.
 
-Choose a unique dedicated worktree path without changing the active checkout, then give the assigned implementation-lane agent a self-contained packet requiring it to create and verify that worktree and containing:
+Give the implementation-lane agent a self-contained packet containing:
 
 - repository and issue identifiers;
 - DAG node, lane, dependencies, conflict domains, and current landing state;
 - approved scope, non-goals, and acceptance criteria;
 - relevant repository instructions;
-- the required base branch, pinned base commit, PR target, dedicated worktree path, and branch naming rules;
+- the required base branch, pinned base commit, PR target, and branch naming rules;
 - required tests and evidence;
 - authorization to create the branch, commit, push, and open the PR;
 - an instruction to use the `engineering` skill when available;
-- a warning not to leave the dedicated worktree, merge, or broaden scope.
+- terminal-only communication and a durable location or format for detailed evidence;
+- a warning not to merge or broaden scope.
 
 Choose the base from actual dependencies, never from scheduling order:
 
@@ -105,22 +111,22 @@ Choose the base from actual dependencies, never from scheduling order:
 
 Verify that every PR shows only its node's intended delta relative to its actual base. Keep stacks short; do not stack unrelated nodes merely to keep a worker busy.
 
-Require the worker to inspect before editing, follow test-first development when required, preserve unrelated changes, commit cohesive work, acquire and release any shared-resource lease, run required checks sequentially, push, open a non-draft PR unless repository policy says otherwise, and return a concise handoff containing the node/lane, attempt number, worktree path, branch, base branch, pinned base commit, head commit, PR URL/number, changed-file summary, test results, and risks.
+Require the worker to inspect before editing, follow test-first development when required, preserve unrelated changes, commit cohesive work, acquire and release any shared-resource lease, run required checks sequentially, push, open a non-draft PR unless repository policy says otherwise, and return a concise handoff containing the node/lane, attempt number, branch, base branch, pinned base commit, head commit, PR URL/number, changed-file summary, test results, and risks.
 
 After dispatch, enter a hands-off wait:
 
-- Do not inspect the live worktree, diff, logs, tests, processes, PR, or CI to infer progress.
-- Do not ask for routine status updates or tell the worker how to solve discoveries made during its attempt.
+- Do not inspect code, diffs, logs, tests, processes, PRs, or CI to infer progress.
+- Do not request checkpoints, status or stage updates, poll progress, suggest implementation, or ingest and retell intermediate diagnoses.
 - Treat quiet execution and long-running checks as normal. Let the worker investigate, revise, and verify its own approach.
 - Intervene only when the subagent explicitly requests help or approval, the user changes the request, or independently observed external state creates a concrete safety or stack-integrity risk.
-- If a tool requires bounded waits, repeat the wait without contacting or probing the subagent. User-facing updates may say only that the supervisor is still waiting; do not speculate about the worker's stage.
+- Prefer a genuine completion notification; otherwise enter one interruptible event wait that wakes for agent completion, an agent message, or user input. Do not repeatedly call short timed waits or emit timeout or status commentary. Poll only when no event mechanism exists, using one high-level status surface with backoff and no worker probes.
 - After the terminal handoff, evaluate only the worker's final message and reported approach. Do not open or run the committed implementation. Delegate all artifact-level validation to the independent reviewer or a separate clean-context audit subagent.
 
-An implementation-lane agent may process multiple independent nodes serially when the work is homogeneous and each node receives a new pinned base, dedicated worktree, packet, attempt record, and lease state. Do not replace it merely because the node changed. Replace it only under the agent-separation rule in the invariants.
+An implementation-lane agent may process multiple independent nodes serially when the work is homogeneous and each node receives a new pinned base, packet, attempt record, and lease state. Do not replace it merely because the node changed. Replace it only under the agent-separation rule in the invariants.
 
-Give each worktree to exactly one live attempt. After an attempt returns, dispatch a cleanup subagent to retire and safely remove only that run-owned worktree before another attempt checks out the same branch; preserve its committed branch and open PR unless the deviation procedure requires abandoning them.
+Give each branch to exactly one live attempt. Release that ownership after the attempt returns before assigning the branch to another attempt; preserve its committed branch and open PR unless the deviation procedure requires abandoning them.
 
-Treat local-only work, a branch without a PR, a PR with the wrong dependency base or base commit, work performed in the active checkout, an unverified PR, or a worker that used another lane's leased runtime as an incomplete node.
+Treat local-only work, a branch without a PR, a PR with the wrong dependency base or base commit, an unverified PR, or a worker that used another lane's leased runtime as an incomplete node.
 
 ## 4. Audit scope through terminal subagent evidence
 
@@ -131,18 +137,18 @@ Treat the worker's final report as provisional only while an authorized review o
 When a worker deviates:
 
 1. Classify the attempt as `deviation`, record the evidence, and increment the node's deviation count exactly once. Do not also increment its quality-failure count.
-2. Preserve unrelated user work, then delegate any code-aware restoration or abandonment to a fresh remediation subagent. The supervisor may retire only a run-owned worktree through orchestration commands and may close an invalid unmerged PR only from the terminal audit evidence.
+2. Preserve unrelated user work, then delegate any code-aware restoration or abandonment to a fresh remediation subagent. The supervisor may close an invalid unmerged PR only from the terminal audit evidence.
 3. Start a fresh worker subagent from the correct clean dependency base with a corrected packet. Leave unrelated DAG lanes running.
 
 Allow at most two re-dispatches caused by deviation. On the third attempt classified as `deviation`, mark the node `skipped (deviation limit)`, record all attempts and evidence, preserve its current safe branch and PR state, and do not dispatch it again. Mark only descendants that require it `blocked by skipped prerequisite`, then continue unrelated ready nodes. Never accept deviating work or present its PR as merge-ready.
 
 ## 5. Obtain an authorized independent PR review
 
-Run this section only when independent review is part of the authorized execution contract and has not already been satisfied by an authorized human. Do not add review to an implementation-only or landing-only request. When required, start a reviewer subagent without inherited conversation history; in Codex, use `fork_turns: "none"` or the closest available clean-context equivalent. Give it only the repository identifier or path, raw issue, approved acceptance criteria, repository instructions, exact base and head commits, parent PR or base branch, and PR reference. Do not provide the worker's conclusions or review summary as ground truth. Confirm that this reviewer did not implement or remediate the step, and instruct it to use the `engineering` skill when available without making changes or merging.
+Run this section only when independent review is part of the authorized execution contract and has not already been satisfied by an authorized human. Do not add review to an implementation-only or landing-only request. Give the reviewer a self-contained packet containing only the repository identifier or path, raw issue, approved acceptance criteria, repository instructions, exact base and head commits, parent PR or base branch, and PR reference. Do not provide the worker's conclusions or review summary as ground truth. Confirm that this reviewer did not implement or remediate the step, and instruct it to use the `engineering` skill when available without making changes or merging.
 
 Require the reviewer to inspect the PR's own delta and relevant surrounding code, verify behavior and tests, check CI and repository rules, confirm the PR's current expected open or authorized-merged state, and classify findings as major or minor. Major findings include requirement gaps, regressions, unsafe data or security behavior, wrong-product changes, material scope creep, invalid architecture, dependency contamination, missing production-equivalent verification, or failing required checks.
 
-Apply the same hands-off wait to reviewers. Do not ask for checkpoints, inspect their temporary worktree, or influence an unfinished review. Assess only the terminal verdict and evidence unless the reviewer explicitly requests help or reports a decision that requires supervisor action.
+Apply the same hands-off wait to reviewers. Do not ask for checkpoints, inspect their artifacts, or influence an unfinished review. Assess only the terminal verdict and evidence unless the reviewer explicitly requests help or reports a decision that requires supervisor action.
 
 The reviewer must return:
 
@@ -162,7 +168,7 @@ Give each completed attempt exactly one terminal classification, in this order:
 2. `quality failure` when there is no deviation but implementation, tests, acceptance criteria, or independent review has a major failure; increment the quality-failure count exactly once regardless of the number of findings.
 3. `accepted` when scope and every quality gate pass.
 
-Do not finish or count an attempt for a transient infrastructure failure; retry the blocked check or confirm a persistent external blocker. For a `quality failure`, assign a fresh remediation subagent a new attempt number, isolated worktree, and tightly scoped packet containing the branch and PR when they exist plus the concrete findings. Re-run the authorized scope audit and required checks after remediation, and repeat clean-context independent review only when it is part of the execution contract.
+Do not finish or count an attempt for a transient infrastructure failure; retry the blocked check or confirm a persistent external blocker. For a `quality failure`, assign a fresh remediation subagent a new attempt number and tightly scoped packet containing the branch and PR when they exist plus the concrete findings. Re-run the authorized scope audit and required checks after remediation, and repeat clean-context independent review only when it is part of the execution contract.
 
 If an amended prerequisite already has descendants, restack only the affected descendant subgraph. Verify every affected PR still contains only its own delta, rerun invalidated authorized checks, and obtain a fresh independent review only where the effective diff or required approval changed and review is part of the execution contract. Continue unaffected lanes.
 
@@ -217,9 +223,15 @@ If the new work is substantial, independently valuable, changes product behavior
 
 ## Reporting and stop conditions
 
-Provide concise progress updates at dispatch, terminal handoff, classification, review, and landing boundaries. During hands-off waits, report only that the supervisor is waiting when an update is necessary; do not turn wait timeouts into worker probes. Build the ledger exclusively from terminal subagent messages: node, dependencies, lane, conflict domains, state, current attempt, terminal classification, deviation count, quality-failure count, worktree, branch, effective base, pinned base commit, accepted head, PR, checks, reviewer verdict, landing state, skip reason, and blocked descendants.
+Provide concise progress updates at dispatch, terminal handoff, classification, review, and landing boundaries. During hands-off waits, do not emit timeout or status commentary; resume reporting only when the event wait wakes for agent completion, an agent message, or user input. Build the ledger exclusively from terminal subagent messages: node, dependencies, lane, conflict domains, state, current attempt, terminal classification, deviation count, quality-failure count, branch, effective base, pinned base commit, accepted head, PR, checks, reviewer verdict, landing state, skip reason, and blocked descendants.
+
+Maintain a compaction-safe control-plane capsule containing only: the original user outcome and intent; explicit scope and non-goals; permissions and prohibitions; topology and shared-resource policy; the node/PR ledger with exact refs, states, and retry counts; the current gate; stop conditions; the next orchestration action; and pointers to durable evidence. Never put code reasoning, logs, diffs, runtime or browser observations, test minutiae, intermediate diagnoses, patch ideas, or worker scratch in the parent context or capsule; those remain in worker-owned durable evidence.
+
+Before and after compaction, remain the manager/control plane that no longer codes. Rehydrate only from the capsule and user requests; do not reconstruct, inspect, reproduce, debug, or design implementation. Delegate a focused investigator when a necessary fact is missing and decide from its terminal recommendation. Compaction is not a reason to restart, repeat completed work, broaden scope, or enter technical work.
 
 For unattended runs, progress updates are informational rather than approval gates. Continue automatically after discovery, triage, accepted nodes, review comments, audited landing transitions, and node-local retry exhaustion unless an explicit overall-run stop condition applies.
+
+When a genuine action-time confirmation is pending, keep the node and unattended orchestration active and safely ready, continue independent authorized work, and wait for the user's response. Do not terminalize or classify the workflow as blocked, or release or tear down healthy state, merely to ask. Classify an authorization blocker only when authority is denied or unavailable, or the action cannot remain pending safely.
 
 Stop in a safe state and report instead of improvising when:
 
