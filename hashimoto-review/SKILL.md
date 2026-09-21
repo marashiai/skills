@@ -5,6 +5,10 @@ description: Review customer-facing code changes for regressions, security, and 
 
 # Hashimoto Review
 
+## Origin and standard
+
+This workflow is inspired by Mitchell Hashimoto's ["whiteboard defense" post on X](https://x.com/mitchellh/status/2100249348345057389). It operationalizes his benchmark for responsible AI-assisted, customer-facing work: the engineer should be able to explain how a shipped system works, defend important choices and alternatives, reason about malicious actors, describe its data structures, and identify where it fails. This is an independently authored review workflow, not an official skill from or endorsement by Hashimoto.
+
 Produce two outcomes together:
 
 1. an evidence-backed engineering review; and
