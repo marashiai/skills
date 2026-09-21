@@ -26,30 +26,43 @@ Classify the work as customer-facing, internal production, or experimental. Appl
 
 ## Open the review in Hunk
 
+When Hunk is installed, locate and read its bundled review skill before using the live-session API:
+
+```sh
+hunk skill path hunk-review
+```
+
+Load or install that skill through the agent's supported skill mechanism when needed. Treat it as the authoritative source for current Hunk commands; this section adds the Hashimoto-review policy on top of it.
+
 Determine the exact command for the resolved range, such as:
 
 ```sh
 hunk diff <base>...<head>
 ```
 
-Use `hunk show <commit>` for one commit. Tell the user to run the exact command in another terminal from the repository root and leave the Hunk window open. Do this early so the user can read notes as they arrive.
+Use `hunk show <commit>` for one commit. Tell the user to run the exact command in another terminal from the repository root and leave the Hunk window open. Do this early so the user can read notes as they arrive. The Hunk TUI belongs to the user: never launch `hunk diff`, `hunk show`, or another interactive Hunk command yourself.
 
 Check `command -v hunk`. If Hunk is unavailable, do not install it without authorization. Continue the code audit and show every prepared note directly to the user with the relevant code excerpt plus its exact file and line anchor. Clearly state that applying the notes to the live diff is waiting on Hunk, point the user to the official Hunk installation documentation, and repeat the exact command they should run. Never reduce or omit the teaching notes merely because Hunk is unavailable.
 
-Once a live window exists, use Hunk's live-session interface rather than scraping its terminal UI:
+Once a live window exists, use Hunk's live-session interface rather than scraping its terminal UI. Inspect the session list first. If multiple sessions share a repository, select the user's window by exact session ID instead of using `--repo`:
 
 ```sh
+hunk session list --json
 hunk session get --repo . --json
-hunk session review --repo . --include-patch --include-notes --json
+hunk session review --repo . --json
 ```
 
-Use the live review model as the source of file paths, hunk numbers, and old/new line anchors. Apply notes with `hunk session comment add` or a batch through `hunk session comment apply --repo . --stdin`. Afterward, verify them with:
+Start with the structure-only review. Request `--include-patch` only for raw diff text the audit actually needs, and use `hunk session context` when current focus matters. Use the live review model as the source of file paths, 1-based hunk numbers, and old/new line anchors.
+
+Inspect existing notes before writing. Navigate or focus the window so the user sees the relevant code. Prefer one validated `hunk session comment apply ... --stdin` batch when several prepared notes are ready; use `comment add` for a one-off note or reply. A batch item must contain `summary` plus either `replyTo`, or `filePath` and exactly one of `hunk`, `hunkNumber`, `oldLine`, or `newLine`. Use `--focus` sparingly to start the guided tour at its first note.
+
+Afterward, verify every applied note with:
 
 ```sh
 hunk session comment list --repo . --type all --json
 ```
 
-Never clear, remove, or overwrite the user's Hunk notes. Avoid duplicating an existing note; reply when the new information belongs to an existing thread.
+Never clear, remove, or overwrite the user's Hunk notes. Avoid duplicating an existing note; reply when the new information belongs to an existing thread. Highlights are optional and visual-only; pair any important explanation with a persistent comment.
 
 ## Audit the change
 
