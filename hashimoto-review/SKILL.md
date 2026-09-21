@@ -30,7 +30,7 @@ hunk diff <base>...<head>
 
 Use `hunk show <commit>` for one commit. Tell the user to run the exact command in another terminal from the repository root and leave the Hunk window open. Do this early so the user can read notes as they arrive.
 
-Check `command -v hunk`. If Hunk is unavailable, do not install it without authorization. Continue the code audit, prepare the notes with file and line anchors, and clearly state that applying them is waiting on Hunk. Point the user to the official Hunk installation documentation and repeat the exact command they should run.
+Check `command -v hunk`. If Hunk is unavailable, do not install it without authorization. Continue the code audit and show every prepared note directly to the user with the relevant code excerpt plus its exact file and line anchor. Clearly state that applying the notes to the live diff is waiting on Hunk, point the user to the official Hunk installation documentation, and repeat the exact command they should run. Never reduce or omit the teaching notes merely because Hunk is unavailable.
 
 Once a live window exists, use Hunk's live-session interface rather than scraping its terminal UI:
 
