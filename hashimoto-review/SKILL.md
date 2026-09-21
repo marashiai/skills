@@ -1,0 +1,133 @@
+---
+name: hashimoto-review
+description: Review customer-facing code changes for regressions, security, and operational risk, then annotate the live diff in Hunk with enough architectural context for an engineer to explain and defend the shipped system. Use for PRs, commit ranges, release candidates, or recent merged work; do not use for quick prototypes where the user explicitly prioritizes speed over production understanding.
+---
+
+# Hashimoto Review
+
+Produce two outcomes together:
+
+1. an evidence-backed engineering review; and
+2. a coherent set of Hunk notes that lets the responsible engineer pass a whiteboard defense after reading them carefully.
+
+Do not edit implementation code during a review unless the user separately asks for fixes. Hunk notes are sidecar review annotations, not source-code comments.
+
+## Establish the review boundary
+
+Resolve the exact base and head before judging the change. For stacked or recently merged work, review the final integrated diff once, then inspect individual PR or commit boundaries only where ownership, intent, or conflict resolution matters. Include shared code and deployment changes that can affect existing products, not only the new app's directory.
+
+Read applicable repository instructions and the change's issue or PR descriptions. Treat stated intent and prior test claims as hypotheses to verify, not proof.
+
+Classify the work as customer-facing, internal production, or experimental. Apply the full workflow to the first two. If the user explicitly labels it a disposable proof of concept or experiment, scale the depth to that request.
+
+## Open the review in Hunk
+
+Determine the exact command for the resolved range, such as:
+
+```sh
+hunk diff <base>...<head>
+```
+
+Use `hunk show <commit>` for one commit. Tell the user to run the exact command in another terminal from the repository root and leave the Hunk window open. Do this early so the user can read notes as they arrive.
+
+Check `command -v hunk`. If Hunk is unavailable, do not install it without authorization. Continue the code audit, prepare the notes with file and line anchors, and clearly state that applying them is waiting on Hunk. Point the user to the official Hunk installation documentation and repeat the exact command they should run.
+
+Once a live window exists, use Hunk's live-session interface rather than scraping its terminal UI:
+
+```sh
+hunk session get --repo . --json
+hunk session review --repo . --include-patch --include-notes --json
+```
+
+Use the live review model as the source of file paths, hunk numbers, and old/new line anchors. Apply notes with `hunk session comment add` or a batch through `hunk session comment apply --repo . --stdin`. Afterward, verify them with:
+
+```sh
+hunk session comment list --repo . --type all --json
+```
+
+Never clear, remove, or overwrite the user's Hunk notes. Avoid duplicating an existing note; reply when the new information belongs to an existing thread.
+
+## Audit the change
+
+Trace behavior across the real boundaries the diff touches:
+
+- entry points, callers, services, queues, jobs, and external dependencies;
+- authentication, authorization, trust boundaries, secrets, and tenant isolation;
+- persistent records, ownership keys, indexes, caches, files, and lifecycle transitions;
+- deployment configuration, migrations, rollout ordering, backward compatibility, and rollback;
+- timeouts, retries, concurrency, quotas, resource bounds, partial failure, cleanup, and observability;
+- user journeys in every existing product that consumes changed shared code.
+
+For malicious-actor analysis, ask what an unauthenticated outsider, ordinary customer, compromised customer artifact, authenticated owner, malicious tenant, compromised internal service, and network-position attacker can do. Do not treat signed provenance as proof that content is safe, or a UI restriction as authorization.
+
+Run the repository-required checks when permitted. Add focused tests or scanners only as evidence, and distinguish:
+
+- verified behavior;
+- reasoned inference;
+- an untested assumption;
+- an environmental blocker.
+
+Check locked dependencies against a current authoritative advisory source. Separate vulnerabilities introduced by the reviewed range from pre-existing vulnerable dependencies that are nevertheless reachable from the new code. Absence of a scanner finding is not a source-level security review.
+
+Report review findings by severity before the teaching narrative. A finding must include impact, a concrete trigger or actor, the affected location, and the evidence. Do not inflate theoretical concerns whose preconditions are excluded by the deployed architecture; do record those deployment assumptions explicitly.
+
+## Write the whiteboard-defense notes
+
+Annotate a small set of high-leverage hunks in reading order. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Do not annotate every hunk.
+
+The notes must form a standalone guided tour of the changed system. Across the complete set, teach:
+
+- what the system does for the customer and the end-to-end request or event flow;
+- which component owns each decision and piece of data;
+- why this design was chosen over the most plausible alternative;
+- the invariants and data structures that make it work;
+- what a malicious or buggy actor can attempt and where it is stopped;
+- where it fails, how failure is surfaced, and whether retry or rollback is safe;
+- how an operator can detect, diagnose, recover, and verify it;
+- what remains intentionally unresolved or risky.
+
+Use a short summary and a substantive rationale. Prefix summaries so the sequence is scannable, for example `Flow 1/7`, `Decision 2/7`, `Threat 3/7`, `Data 4/7`, `Failure 5/7`, `Operations 6/7`, and `Open risk 7/7`. This is a pattern, not a required fixed count.
+
+Write each rationale in plain language. Include the relevant subset of these labels when useful:
+
+```text
+System role:
+Why this design:
+Alternative and tradeoff:
+Trust boundary:
+Data/invariant:
+Failure and recovery:
+Evidence:
+Open question:
+```
+
+State uncertainty honestly. Never invent a rationale; label an inferred rationale and identify what would confirm it. Keep defect comments distinct from explanatory notes. A severe finding may also teach the violated invariant, but its summary must make the required action unmistakable.
+
+## Test the engineer's understanding
+
+After the Hunk notes are applied, provide a compact defense brief keyed to them:
+
+- a 60-second system explanation;
+- the three most consequential design decisions and alternatives;
+- the main data model and ownership rules;
+- the top malicious-actor scenario;
+- the most likely failure and recovery path;
+- the evidence supporting the release verdict;
+- unresolved risks or checks still needed.
+
+End with realistic questions the engineer should be able to answer, including:
+
+- Why did we choose this boundary instead of the nearest alternative?
+- What happens when a normal customer behaves maliciously?
+- Which identifier or record is authoritative, and why?
+- Where can this fail partially, and is retry safe?
+- What breaks during rollout or rollback?
+- Which claim rests on a deployment assumption rather than an enforced invariant?
+
+The goal is not memorizing functions. It is being able to reconstruct the system, defend its choices, and name its limits without hand-waving.
+
+## Deliver the verdict
+
+Lead with whether the change is safe to ship, conditionally safe, or not ready. List findings in severity order, then regression evidence, security evidence, verification gaps, and the whiteboard-defense map. Link to exact local files and lines when available.
+
+Do not say there are no breaking changes or vulnerabilities merely because tests pass. Use narrower language: what was tested, what was inspected, what actors and boundaries were considered, and what remains unknown.

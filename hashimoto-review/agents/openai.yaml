@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hashimoto Review"
+  short_description: "Turn diffs into a defensible system understanding"
+  default_prompt: "Use $hashimoto-review to audit this change and annotate its Hunk diff for a whiteboard defense."

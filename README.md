@@ -6,6 +6,8 @@ Personal Codex skills.
   the Cerebro orchestrator.
 - [`engineering`](engineering/SKILL.md) defines a disciplined engineering
   workflow focused on simple, production-ready changes.
+- [`hashimoto-review`](hashimoto-review/SKILL.md) audits customer-facing
+  changes and annotates Hunk diffs for whiteboard-level system understanding.
 - [`supervise`](supervise/SKILL.md) coordinates repository work across issues,
   pull requests, reviews, and verification.
 - [`writing`](writing/SKILL.md) edits prose while preserving the author's ideas
