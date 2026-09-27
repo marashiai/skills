@@ -90,7 +90,7 @@ Report review findings by severity before the teaching narrative. A finding must
 
 ## Write the whiteboard-defense notes
 
-Annotate a small set of high-leverage hunks in reading order. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Do not annotate every hunk.
+Choose the code locations that best explain the change, and arrange the notes in reading order. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Let the explanations determine how many notes are needed; do not squeeze unrelated points into one note to keep the count small.
 
 The notes must form a standalone guided tour of the changed system. Across the complete set, teach:
 
@@ -103,22 +103,15 @@ The notes must form a standalone guided tour of the changed system. Across the c
 - how an operator can detect, diagnose, recover, and verify it;
 - what remains intentionally unresolved or risky.
 
-Use a short summary and a substantive rationale. Prefix summaries so the sequence is scannable, for example `Flow 1/7`, `Decision 2/7`, `Threat 3/7`, `Data 4/7`, `Failure 5/7`, `Operations 6/7`, and `Open risk 7/7`. This is a pattern, not a required fixed count.
+Use a brief descriptive title when it helps navigation, followed by connected sentences that explain the code. The topics above guide the audit; they are not labels to fill in for every note. Assume the reader is an experienced engineer, but make the grammatical relationships explicit. Say which component does what, under which conditions, and why the result matters. Keep technical terms precise without joining them into shorthand that the reader must decode.
 
-Write each rationale in plain language. Include the relevant subset of these labels when useful:
+For example, "Expired-cache refresh failure preserves stale reads" names concepts without clearly connecting them. "If refreshing an expired cache entry fails, the reader receives the old value. Reads remain available, but callers can receive stale data" explains the behavior and its cost. This is an example of sentence construction, not a template for every note.
 
-```text
-System role:
-Why this design:
-Alternative and tradeoff:
-Trust boundary:
-Data/invariant:
-Failure and recovery:
-Evidence:
-Open question:
-```
+When discussing tests, describe the scenario and the result they assert. Distinguish the scenarios a test sets up from the properties its assertions actually check. A list of technologies or topics that tests "cover" does not explain what they establish. Mention test setup when it affects the strength or limits of the evidence; do not imply that a simulated dependency proves the real service works.
 
-State uncertainty honestly. Never invent a rationale; label an inferred rationale and identify what would confirm it. Keep defect comments distinct from explanatory notes. A severe finding may also teach the violated invariant, but its summary must make the required action unmistakable.
+Before publishing, read each note as prose. Remove repeated details instead of the verbs, conditions, or connecting phrases that make it understandable. A note should explain an important point accurately on its first reading, without requiring the reader to reconstruct the sentence or guess how its terms relate.
+
+Keep claims within the component and conditions the code supports. Follow a value back to its source when its meaning depends on another layer; do not attribute a guarantee to the whole system just because one function implements part of it. State uncertainty honestly. Never invent a rationale; label an inferred rationale and identify what would confirm it. Keep defect comments distinct from explanatory notes. A severe finding may also teach the violated invariant, but its summary must make the required action unmistakable.
 
 ## Test the engineer's understanding
 

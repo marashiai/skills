@@ -44,12 +44,18 @@ Stop and re-plan when implementation materially exceeds the approved solution sh
 - Challenge defaults, fallbacks, and extra complexity: require a verified need for each one.
 - Before implementation and again before delivery, ask whether any proposed code, file, dependency, branch, or configuration can be removed while preserving the full contract. Remove it when the answer is yes.
 
-## Make every comment earn its place
+## Make every source comment earn its place
 
 - Prefer self-explanatory code. Add a comment only when it communicates important intent, rationale, invariants, tradeoffs, external constraints, or safety concerns that the code cannot express clearly, or when the repository or tooling requires one.
 - Explain why, not what. Do not narrate syntax or control flow, repeat names, add decorative section labels, or use comments to compensate for unclear code that can be simplified instead.
 - Keep comments truthful, specific, current, concise, and natural for a human reader. Never fabricate rationale, constraints, guarantees, behavior, or provenance, and never present an unverified assumption as fact.
 - Update or remove comments when the code changes. Before delivery, ask whether an experienced reviewer would be glad each comment exists; remove any comment that does not justify its maintenance cost.
+
+## Explain work to the reviewer
+
+Write review notes and user-facing explanations as connected prose for a fellow engineer. Use precise technical terms, but make the relationships explicit: which component acts, under what condition, and what follows. An experienced reader should not have to turn a chain of technical nouns into a sentence.
+
+Shorten explanations by removing repetition, not the verbs and connecting phrases that make the reasoning understandable. Preserve important conditions and limits. The source-comment guidance above governs what belongs in code; review notes may need to explain behavior and control flow so the reviewer can assess the change.
 
 ## Structure delivery
 
