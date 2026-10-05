@@ -1,6 +1,6 @@
 ---
 name: hashimoto-review
-description: Review customer-facing code changes for regressions, security, and operational risk, then annotate the diff in Hunk or revdiff with numbered, categorized notes that let an engineer explain and defend the shipped system. Use for PRs, commit ranges, release candidates, or recent merged work; do not use for quick prototypes where the user explicitly prioritizes speed over production understanding.
+description: Review customer-facing code changes for regressions, security, and operational risk, then open the diff in Hunk with numbered, categorized notes that let an engineer explain and defend the shipped system. Use for PRs, commit ranges, release candidates, or recent merged work; do not use for quick prototypes where the user explicitly prioritizes speed over production understanding.
 ---
 
 # Hashimoto Review
@@ -14,7 +14,7 @@ Produce two outcomes together:
 1. an evidence-backed engineering review; and
 2. a coherent set of review notes that lets the responsible engineer pass a whiteboard defense after reading them carefully.
 
-Do not edit implementation code during a review unless the user separately asks for fixes. Hunk and revdiff notes are sidecar review annotations, not source-code comments.
+Do not edit implementation code during a review unless the user separately asks for fixes. Hunk notes are sidecar review annotations, not source-code comments.
 
 ## Establish the review boundary
 
@@ -24,49 +24,70 @@ Read applicable repository instructions and the change's issue or PR description
 
 Classify the work as customer-facing, internal production, or experimental. Apply the full workflow to the first two. If the user explicitly labels it a disposable proof of concept or experiment, scale the depth to that request.
 
-## Open the review in Hunk or revdiff
+## Open the review in Hunk
 
-Use the viewer the user requests; default to Hunk. For revdiff, read its installed skill and follow its documented annotation-preloading workflow. Keep the required file/line record headers intact and put the numbered, categorized prose in each annotation body. Preserve the distinction between agent-authored explanations and human requests when processing returned annotations. Continue with the audit and note-writing rules below; the live-session commands in this section apply only to Hunk.
+Present the review in [Hunk](https://hunk.dev). Its `}` and `{` keys move to the
+next or previous annotated hunk in the order Hunk shows the diff, so the notes
+are numbered in that order (see below). Hunk's `review-note-navigator` example
+extension lists every note on `F8`. The setup is in `marashiai/rcs` (`hunk/`).
 
-When Hunk is installed, locate and read its bundled review skill before using the live-session API:
+Read Hunk's bundled review skill before using its live-session API, and treat it
+as the authoritative source for current Hunk commands:
 
 ```sh
 hunk skill path hunk-review
 ```
 
-Load or install that skill through the agent's supported skill mechanism when needed. Treat it as the authoritative source for current Hunk commands; this section adds the Hashimoto-review policy on top of it.
+Check `command -v hunk`. If Hunk is missing, do not install it without
+authorization. Continue the audit and show every prepared note directly to the
+user with the relevant code excerpt plus its exact file and line anchor, and
+point to the setup in `marashiai/rcs`. Never reduce or omit the teaching notes
+because the viewer is unavailable.
 
-Determine the exact command for the resolved range, such as:
+Resolve the exact Hunk arguments for the range, such as `diff <base> <head>`,
+`diff <base>...<head>`, or `show <commit>`.
+
+### Write the notes
+
+Finish the audit and write the notes before opening Hunk, so the user opens a
+complete review. Anchor every note on a line inside a changed hunk.
+
+Keep review artifacts outside the reviewed repository, for example under
+`${TMPDIR:-/tmp}/hunk-review/<repo>-<range>/`. Write the notes to `notes.json` as
+one `hunk session comment apply` batch. A batch item contains `summary` plus
+either `replyTo`, or `filePath` and exactly one of `hunk`, `hunkNumber`,
+`oldLine`, or `newLine`. Put the numbered, categorized prose in `summary`,
+without a separate title; use `rationale` only for additional explanation, never
+to repeat the summary.
+
+### Open Hunk with the notes
+
+When the user asks for review notes in Hunk, open the review for them in a new
+terminal window with the bundled script. It prints the new live session's id:
 
 ```sh
-hunk diff <base>...<head>
+id=$(scripts/open-hunk.sh <repo> <hunk args...>)
+hunk session comment apply "$id" --stdin < notes.json
 ```
 
-Use `hunk show <commit>` for one commit. Tell the user to run the exact command in another terminal from the repository root and leave the Hunk window open. Do this early so the user can read notes as they arrive. The Hunk TUI belongs to the user: never launch `hunk diff`, `hunk show`, or another interactive Hunk command yourself.
+Run the script from this skill's directory. It needs Ghostty on macOS. Elsewhere
+it exits with the exact command for the user to run; once their window is open,
+select its session with `hunk session list --json` and apply the notes to it.
+Never run Hunk inside the agent's own terminal.
 
-Check `command -v hunk`. If Hunk is unavailable, do not install it without authorization. Continue the code audit and show every prepared note directly to the user with the relevant code excerpt plus its exact file and line anchor. Clearly state that applying the notes to the live diff is waiting on Hunk, point the user to the official Hunk installation documentation, and repeat the exact command they should run. Never reduce or omit the teaching notes merely because Hunk is unavailable.
+Before applying notes to an existing window, inspect its notes. Never clear,
+remove, or overwrite the user's notes. Avoid duplicating an existing note; reply
+when the new information belongs to an existing thread.
 
-Once a live window exists, use Hunk's live-session interface rather than scraping its terminal UI. Inspect the session list first. If multiple sessions share a repository, select the user's window by exact session ID instead of using `--repo`:
+Afterward, verify every applied note's number, category, prose, and code anchor:
 
 ```sh
-hunk session list --json
-hunk session get --repo . --json
-hunk session review --repo . --json
+hunk session comment list "$id" --type all --json
 ```
 
-Start with the structure-only review. Request `--include-patch` only for raw diff text the audit actually needs, and use `hunk session context` when current focus matters. Use the live review model as the source of file paths, 1-based hunk numbers, and old/new line anchors.
-
-Inspect existing notes before writing. Navigate or focus the window so the user sees the relevant code. Prefer one validated `hunk session comment apply ... --stdin` batch when several prepared notes are ready; use `comment add` for a one-off note or reply. A batch item must contain `summary` plus either `replyTo`, or `filePath` and exactly one of `hunk`, `hunkNumber`, `oldLine`, or `newLine`. Use `--focus` sparingly to start the guided tour at its first note.
-
-Put the numbered, categorized prose in Hunk's required `summary` field, without a separate title. Use the optional `rationale` only for additional explanation, never to repeat the summary.
-
-Afterward, verify every applied note's number, category, prose, and code anchor with:
-
-```sh
-hunk session comment list --repo . --type all --json
-```
-
-Never clear, remove, or overwrite the user's Hunk notes. Avoid duplicating an existing note; reply when the new information belongs to an existing thread. Highlights are optional and visual-only; pair any important explanation with a persistent comment.
+Tell the user that `}` and `{` step through the notes in number order and `F8`
+lists them. Live notes disappear when the Hunk window closes; reopen the review
+by repeating the two commands above with the saved notes.
 
 ## Audit the change
 
@@ -94,11 +115,11 @@ Report review findings by severity before the teaching narrative. A finding must
 
 ## Write the whiteboard-defense notes
 
-Choose the code locations that best explain the change, and arrange the notes in reading order. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Let the explanations determine how many notes are needed; do not squeeze unrelated points into one note to keep the count small.
+Choose the code locations that best explain the change. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Let the explanations determine how many notes are needed; do not squeeze unrelated points into one note to keep the count small.
 
-Start every agent-authored note, including defect comments and replies, with `N. [category] ` followed immediately by explanatory prose. Do not add a title, headline, or separate summary sentence that merely names the topic. Apply the same format in Hunk, revdiff, and any notes shown directly to the user when the viewer is unavailable.
+Start every agent-authored note, including defect comments and replies, with `N. [category] ` followed immediately by explanatory prose. Do not add a title, headline, or separate summary sentence that merely names the topic. Apply the same format in Hunk and in any notes shown directly to the user when the viewer is unavailable.
 
-Use one sequence starting at 1 across the entire review, spanning files, categories, and batches. Assign numbers in the intended reading order before publishing; they are not severity ranks or file/hunk numbers. Keep published numbers stable, continue after the highest existing agent-note number when adding notes or resuming the same review, and refer to earlier explanations by note number. Never renumber or rewrite the user's notes.
+Use one sequence starting at 1 across the entire review, spanning files, categories, and batches. Assign numbers in the order Hunk shows the notes, by file path and then line, so `}` reads them in sequence; write each note to make sense at that position and refer back to earlier notes by number. Numbers are not severity ranks. Keep published numbers stable, continue after the highest existing agent-note number when adding notes or resuming the same review, and refer to earlier explanations by note number. Never renumber or rewrite the user's notes.
 
 Choose one primary category from this vocabulary. Use `bug` for a confirmed defect, including security or performance defects, and state its severity in the prose. Use `note` when no more specific category fits. Categories help navigation; they are not a checklist or a reason to add more notes.
 
