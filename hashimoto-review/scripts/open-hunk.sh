@@ -23,8 +23,15 @@ fi
 
 launch=$(mktemp "${TMPDIR:-/tmp}/hunk-review.XXXXXX")
 {
-  # Ghostty starts the command without a login profile; keep the caller's PATH.
-  printf '#!/usr/bin/env bash\nexport PATH=%q\ncd %q\nexec hunk' "$PATH" "$repo"
+  # Ghostty starts the command without a login profile; keep the caller's PATH
+  # and editor so Hunk can open files.
+  printf '#!/usr/bin/env bash\nexport PATH=%q\n' "$PATH"
+  for var in EDITOR VISUAL; do
+    if [ -n "${!var:-}" ]; then
+      printf 'export %s=%q\n' "$var" "${!var}"
+    fi
+  done
+  printf 'cd %q\nexec hunk' "$repo"
   printf ' %q' "$@"
   printf '\n'
 } > "$launch"
