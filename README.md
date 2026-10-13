@@ -6,6 +6,8 @@ Personal Codex skills.
   the Cerebro orchestrator.
 - [`engineering`](engineering/SKILL.md) defines a disciplined engineering
   workflow focused on simple, production-ready changes.
+- [`ground-rules`](ground-rules/SKILL.md) holds the rules for every task: brief,
+  to-the-point answers and never touching production.
 - [`hashimoto-review`](hashimoto-review/SKILL.md), inspired by Mitchell
   Hashimoto's [whiteboard defense](https://x.com/mitchellh/status/2100249348345057389),
   audits customer-facing changes and opens them in Hunk with numbered notes for
