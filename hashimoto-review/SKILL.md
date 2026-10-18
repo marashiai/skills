@@ -57,8 +57,9 @@ Keep review artifacts outside the reviewed repository, for example under
 one `hunk session comment apply` batch. A batch item contains `summary` plus
 either `replyTo`, or `filePath` and exactly one of `hunk`, `hunkNumber`,
 `oldLine`, or `newLine`. Put the numbered, categorized prose in `summary`,
-without a separate title; use `rationale` only for additional explanation, never
-to repeat the summary.
+without a separate title. Leave `rationale` out: notes are read aloud (see
+"Write notes for listening"), and detail that does not fit a short spoken note
+belongs in the written review.
 
 ### Open Hunk with the notes
 
@@ -117,11 +118,21 @@ Report review findings by severity before the teaching narrative. A finding must
 
 Choose the code locations that best explain the change. Prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. Let the explanations determine how many notes are needed; do not squeeze unrelated points into one note to keep the count small.
 
-Start every agent-authored note, including defect comments and replies, with `N. [category] ` followed immediately by explanatory prose. Do not add a title, headline, or separate summary sentence that merely names the topic. Apply the same format in Hunk and in any notes shown directly to the user when the viewer is unavailable.
+Start every agent-authored note, including defect comments and replies, with `N. Category: ` followed immediately by explanatory prose, for example `3. Bug, high severity: ` or `5. Hot path: `. The colon gives a spoken pause. Do not add a title, headline, or separate summary sentence that merely names the topic. Apply the same format in Hunk and in any notes shown directly to the user when the viewer is unavailable.
+
+### Write notes for listening
+
+The user listens to notes through text-to-speech, so every note must be short and sound natural when read aloud:
+
+- Keep a note to two to four plain sentences, at most about 60 words. Make one point per note; split a second point into its own note rather than lengthening this one.
+- Use no Markdown, backticks, bullet lists, code, file paths, line numbers, URLs, SQL, or symbols such as slashes, arrows, brackets, parentheses, underscores, percent signs, or comparison signs. The anchor already shows the code; the note explains it.
+- Name things the way an engineer would say them, such as "the answer handler" or "the per-player view", not `chats_answer_question` or `state_for_viewer`. Spell out versions and units that speech engines misread: "version three point two", "300 megabytes".
+- Give the behavior, its condition, and why it matters. Leave out evidence trails, test names, query text, and exact counts unless the number itself is the point.
+- Put the detail a note cannot carry, such as queries, rollback SQL, file and line references, test names, and evidence, in the written review that accompanies the verdict, and refer to it from the note as "the review file".
 
 Use one sequence starting at 1 across the entire review, spanning files, categories, and batches. Assign numbers in the order Hunk shows the notes, by file path and then line, so `}` reads them in sequence; write each note to make sense at that position and refer back to earlier notes by number. Numbers are not severity ranks. Keep published numbers stable, continue after the highest existing agent-note number when adding notes or resuming the same review, and refer to earlier explanations by note number. Never renumber or rewrite the user's notes.
 
-Choose one primary category from this vocabulary. Use `bug` for a confirmed defect, including security or performance defects, and state its severity in the prose. Use `note` when no more specific category fits. Categories help navigation; they are not a checklist or a reason to add more notes.
+Choose one primary category from this vocabulary and write it capitalized in the prefix. Use `bug` for a confirmed defect, including security or performance defects, and put its severity in the prefix, as in `Bug, medium severity:`. Use `note` when no more specific category fits. Categories help navigation; they are not a checklist or a reason to add more notes.
 
 | Category | Use for |
 | --- | --- |
@@ -142,11 +153,11 @@ Choose one primary category from this vocabulary. Use `bug` for a confirmed defe
 For example, three notes at their respective code anchors could read:
 
 ```text
-1. [architecture] The handler passes accepted jobs to the queue. The worker owns execution, so the request can finish before the job does.
+1. Architecture: The handler passes accepted jobs to the queue. The worker owns execution, so the request can finish before the job does.
 
-2. [hot path] Every job-status request reads this cache before querying storage. A cache hit avoids a database read, but the returned status can lag behind the worker.
+2. Hot path: Every job status request reads this cache before querying storage. A cache hit avoids a database read, but the returned status can lag behind the worker.
 
-3. [bug] High severity: include the tenant ID in this cache key. Two tenants can use the same job ID, so the current key can return another tenant's status.
+3. Bug, high severity: Include the tenant in this cache key. Two tenants can use the same job number, so the current key can return another tenant's status.
 ```
 
 The notes must form a standalone guided tour of the changed system. Across the complete set, teach:
@@ -166,7 +177,7 @@ For example, "Expired-cache refresh failure preserves stale reads" names concept
 
 When discussing tests, describe the scenario and the result they assert. Distinguish the scenarios a test sets up from the properties its assertions actually check. A list of technologies or topics that tests "cover" does not explain what they establish. Mention test setup when it affects the strength or limits of the evidence; do not imply that a simulated dependency proves the real service works.
 
-Before publishing, read each note as prose. Remove repeated details instead of the verbs, conditions, or connecting phrases that make it understandable. A note should explain an important point accurately on its first reading, without requiring the reader to reconstruct the sentence or guess how its terms relate.
+Before publishing, read each note aloud, or as if it were read aloud. Remove repeated details instead of the verbs, conditions, or connecting phrases that make it understandable. A note should explain an important point accurately on its first reading, without requiring the reader to reconstruct the sentence or guess how its terms relate.
 
 Keep claims within the component and conditions the code supports. Follow a value back to its source when its meaning depends on another layer; do not attribute a guarantee to the whole system just because one function implements part of it. State uncertainty honestly. Never invent a rationale; label an inferred rationale and identify what would confirm it. Keep defect comments distinct from explanatory notes. A severe finding may also teach the violated invariant, but its opening sentence must make the severity and required action unmistakable.
 

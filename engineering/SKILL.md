@@ -57,6 +57,8 @@ Write review notes and user-facing explanations as connected prose for a fellow 
 
 Shorten explanations by removing repetition, not the verbs and connecting phrases that make the reasoning understandable. Preserve important conditions and limits. The source-comment guidance above governs what belongs in code; review notes may need to explain behavior and control flow so the reviewer can assess the change.
 
+Inline review notes anchored to code, such as Hunk notes, are read aloud by text-to-speech. Keep each one short and free of code, paths and symbols, following "Write notes for listening" in the `hashimoto-review` skill, and put the supporting detail in the written review.
+
 ## Structure delivery
 
 - For multiple issues, order work by dependencies, risk retirement, and impact-to-effort. Parallelize independent work only when shared resources and coordination cost make that worthwhile.
