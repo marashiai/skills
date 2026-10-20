@@ -10,8 +10,9 @@ Personal Codex skills.
   to-the-point answers and never touching production.
 - [`hashimoto-review`](hashimoto-review/SKILL.md), inspired by Mitchell
   Hashimoto's [whiteboard defense](https://x.com/mitchellh/status/2100249348345057389),
-  audits customer-facing changes and opens them in Hunk with numbered notes for
-  system-level understanding.
+  audits customer-facing changes and opens them in Hunk with numbered notes on
+  the non-trivial code paths worth reviewing, including every shortcut and
+  surprise.
 - [`supervise`](supervise/SKILL.md) coordinates repository work across issues,
   pull requests, reviews, and verification.
 - [`writing`](writing/SKILL.md) edits prose while preserving the author's ideas
