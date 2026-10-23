@@ -1,6 +1,6 @@
 ---
 name: hashimoto-review
-description: Review customer-facing code changes for regressions, security, and operational risk, then open the diff in Hunk with numbered, categorized notes on the non-trivial code paths the engineer must review, including every shortcut and every surprise, so they can explain and defend the shipped system. Use for PRs, commit ranges, release candidates, or recent merged work; do not use for quick prototypes where the user explicitly prioritizes speed over production understanding.
+description: Review customer-facing code changes for regressions, security, and operational risk, then open the diff in Hunk with numbered, categorized notes on the non-trivial code paths the engineer must review, including every shortcut and everything that needs their attention, so they can explain and defend the shipped system. Use for PRs, commit ranges, release candidates, or recent merged work; do not use for quick prototypes where the user explicitly prioritizes speed over production understanding.
 ---
 
 # Hashimoto Review
@@ -126,7 +126,7 @@ Leave trivial changes out, even when they are part of the diff: styling such as 
 
 Every shortcut gets a note. When the change patches a symptom instead of fixing its cause, for example with a counter, flag, retry, timeout, special case, or guard where a redesign would remove the problem, say so plainly. Name the proper fix, why it was not taken, and what it would cost. This applies most of all to changes the agent wrote itself: never present a workaround as the design.
 
-Every surprise gets a note: behavior a reasonable reader would not expect from the diff or the pull request description. Examples are a side effect on another screen or product, a user moved somewhere they did not ask to go, a changed default, data kept longer than it looks, and a rule that is guidance rather than an enforced check.
+Every surprise gets a note: behavior a reasonable reader would not expect from the diff or the pull request description. Label it `bug` when the behavior is wrong and `attention` otherwise. Examples are a side effect on another screen or product, a user moved somewhere they did not ask to go, a changed default, data kept longer than it looks, and a rule that is guidance rather than an enforced check.
 
 Within these paths, prefer ownership boundaries, state transitions, policy enforcement, and failure handling over mechanically changed lines. The notes must still give a full understanding of the non-trivial system; let that, not the size of the diff, determine how many notes are needed, and do not squeeze unrelated points into one note to keep the count small.
 
@@ -144,13 +144,13 @@ The user listens to notes through text-to-speech, so every note must be short an
 
 Use one sequence starting at 1 across the entire review, spanning files, categories, and batches. Assign numbers in the order Hunk shows the notes, by file path and then line, so `}` reads them in sequence; write each note to make sense at that position and refer back to earlier notes by number. Numbers are not severity ranks. Keep published numbers stable, continue after the highest existing agent-note number when adding notes or resuming the same review, and refer to earlier explanations by note number. Never renumber or rewrite the user's notes.
 
-Choose one primary category from this vocabulary and write it capitalized in the prefix. Use `bug` for a confirmed defect, including security or performance defects, and put its severity in the prefix, as in `Bug, medium severity:`. Use `shortcut` and `surprise` whenever they apply, even when another category also fits, because those are the notes the engineer must not miss. Use `note` when no more specific category fits. Categories help navigation; they are not a checklist or a reason to add more notes.
+Choose one primary category from this vocabulary and write it capitalized in the prefix. Use `bug` for a confirmed defect, including security or performance defects, and put its severity in the prefix, as in `Bug, medium severity:`. Use `shortcut` and `attention` whenever they apply, even when another category also fits, because those are the notes the engineer must not miss. Use `note` when no more specific category fits. Categories help navigation; they are not a checklist or a reason to add more notes.
 
 | Category | Use for |
 | --- | --- |
 | `bug` | An evidence-backed defect requiring correction. |
 | `shortcut` | A workaround or narrower fix chosen over a proper design fix, with the proper fix and its cost. |
-| `surprise` | Behavior a reader would not expect from the diff or description, such as a side effect elsewhere or an unenforced rule. |
+| `attention` | Behavior a reader would not expect from the diff or description that is not a defect, such as a side effect elsewhere or an unenforced rule. |
 | `note` | Useful context that does not fit another category. |
 | `architecture` | Component boundaries, ownership, design choices, and alternatives. |
 | `hot path` | Frequent or latency-critical execution paths. |
@@ -175,7 +175,7 @@ For example, five notes at their respective code anchors could read:
 
 4. Shortcut: Two counters stop an older snapshot from erasing a newer question. The proper fix is a server sequence number on snapshots and events, which needs a server change. Until then the client still merges three sources that arrive in no fixed order.
 
-5. Surprise: After a change finishes, the maker lands on the play step, not on the feedback step where they started it.
+5. Attention: After a change finishes, the maker lands on the play step, not on the feedback step where they started it.
 ```
 
 The notes must form a standalone guided tour of the changed system. Across the complete set, teach:
@@ -227,6 +227,6 @@ The goal is not memorizing functions. It is being able to reconstruct the system
 
 ## Deliver the verdict
 
-Lead with whether the change is safe to ship, conditionally safe, or not ready. List findings in severity order while retaining their note numbers, then the shortcuts and surprises by note number, then regression evidence, security evidence, verification gaps, and the whiteboard-defense map in numbered reading order. Link to exact local files and lines when available.
+Lead with whether the change is safe to ship, conditionally safe, or not ready. List findings in severity order while retaining their note numbers, then the shortcuts and attention notes by note number, then regression evidence, security evidence, verification gaps, and the whiteboard-defense map in numbered reading order. Link to exact local files and lines when available.
 
 Do not say there are no breaking changes or vulnerabilities merely because tests pass. Use narrower language: what was tested, what was inspected, what actors and boundaries were considered, and what remains unknown.
