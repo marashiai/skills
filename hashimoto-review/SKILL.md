@@ -65,20 +65,23 @@ belongs in the written review.
 
 ### Open Hunk with the notes
 
-When the user asks for review notes in Hunk, open the review for them in a new
-terminal window with the bundled script. It prints the new live session's id:
+When the user asks for review notes in Hunk, open the review for them in their
+terminal with the bundled script, in a new tab where the terminal can open one
+and in a new window otherwise. It prints the new live session's id:
 
 ```sh
 id=$(scripts/open-hunk.sh <repo> <hunk args...>)
 hunk session comment apply "$id" --stdin < notes.json
 ```
 
-Run the script from this skill's directory. It needs Ghostty on macOS. Elsewhere
-it exits with the exact command for the user to run; once their window is open,
-select its session with `hunk session list --json` and apply the notes to it.
-Never run Hunk inside the agent's own terminal.
+Run the script from this skill's directory. It detects the user's terminal from
+the environment: Rex, tmux, Zellij, WezTerm, kitty, and on macOS Ghostty, iTerm2,
+and Terminal.app. In any other terminal it exits with the exact command for the
+user to run; once Hunk is open, select its session with
+`hunk session list --json` and apply the notes to it. Never run Hunk inside the
+agent's own terminal.
 
-Before applying notes to an existing window, inspect its notes. Never clear,
+Before applying notes to an existing Hunk session, inspect its notes. Never clear,
 remove, or overwrite the user's notes. Avoid duplicating an existing note; reply
 when the new information belongs to an existing thread.
 
@@ -89,8 +92,8 @@ hunk session comment list "$id" --type all --json
 ```
 
 Tell the user that `}` and `{` step through the notes in number order and `F8`
-lists them. Live notes disappear when the Hunk window closes; reopen the review
-by repeating the two commands above with the saved notes.
+lists them. Live notes disappear when Hunk closes; reopen the review by
+repeating the two commands above with the saved notes.
 
 ## Audit the change
 
