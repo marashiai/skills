@@ -22,17 +22,37 @@ name="hunk: $(basename "$repo")"
 
 launch=$(mktemp "${TMPDIR:-/tmp}/hunk-review.XXXXXX")
 {
-  # Terminals start the command without the agent's environment; keep the
-  # caller's PATH and editor so Hunk can open files.
+  # Terminals start this script from the login environment, without the
+  # agent's environment and without the user's interactive shell configuration
+  # (~/.zshrc, ~/.bashrc, config.fish). Start from the agent's PATH and editor
+  # as a baseline, then let the user's own shell files take over below.
   printf '#!/usr/bin/env bash\nexport PATH=%q\n' "$PATH"
   for var in EDITOR VISUAL; do
     if [ -n "${!var:-}" ]; then
       printf 'export %s=%q\n' "$var" "${!var}"
     fi
   done
-  printf 'cd %q\nexec hunk' "$repo"
+  printf 'cd %q\n' "$repo"
+  printf 'set --'
   printf ' %q' "$@"
   printf '\n'
+  cat <<'EOF'
+# Run Hunk through the user's interactive login shell so the variables from
+# their rc and profile files apply, exactly as in a shell tab. Without this,
+# EDITOR and PATH entries set in ~/.zshrc or ~/.bashrc are missing and Hunk's
+# `e` key reports "$EDITOR is not set". Hunk reads EDITOR only, so fall back
+# to VISUAL.
+shell=${SHELL:-/bin/sh}
+case ${shell##*/} in
+  bash|zsh)
+    exec "$shell" -l -i -c '[ -n "${EDITOR-}" ] || [ -z "${VISUAL-}" ] || export EDITOR="$VISUAL"; exec hunk "$@"' hunk "$@" ;;
+  fish)
+    exec "$shell" -l -i -c 'test -n "$EDITOR"; or test -z "$VISUAL"; or set -gx EDITOR "$VISUAL"; exec hunk $argv' "$@" ;;
+  *)
+    [ -n "${EDITOR-}" ] || [ -z "${VISUAL-}" ] || export EDITOR="$VISUAL"
+    exec hunk "$@" ;;
+esac
+EOF
 } > "$launch"
 chmod +x "$launch"
 

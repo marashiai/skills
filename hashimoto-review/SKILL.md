@@ -81,6 +81,16 @@ user to run; once Hunk is open, select its session with
 `hunk session list --json` and apply the notes to it. Never run Hunk inside the
 agent's own terminal.
 
+Always open Hunk through this script, also when reopening a review or opening
+it again with other arguments. Never start Hunk with a bare terminal command
+such as `rex window new -- hunk ...`, `rex run -- hunk ...`, or
+`tmux new-window hunk ...`: terminals start such commands from the login
+environment without the user's interactive shell configuration, so `EDITOR`
+and the `PATH` entries from `~/.zshrc` or `~/.bashrc` are missing and Hunk's
+`e` key reports that `$EDITOR` is not set. The script runs Hunk through the
+user's interactive login shell so their shell files apply. If the script fails,
+show its error to the user and fix the cause instead of bypassing the script.
+
 Before applying notes to an existing Hunk session, inspect its notes. Never clear,
 remove, or overwrite the user's notes. Avoid duplicating an existing note; reply
 when the new information belongs to an existing thread.
