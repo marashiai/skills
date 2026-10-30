@@ -14,6 +14,11 @@ description: Rules for every task and every reply, in any repository. Load at th
 - When you need a decision, ask one short question with your recommendation.
 - Expand only when asked.
 
+## A question is a stop point
+
+- When the user asks a question while you work, stop and answer it as your reply. Never bury the answer between tool calls and carry on.
+- Finish only the work the question does not touch. Commit, push, or install nothing it is about until the user has decided.
+
 ## Never touch production
 
 - Never connect to, inspect, or run anything on a production system, not even read-only, unless the user explicitly asks for that specific action.
